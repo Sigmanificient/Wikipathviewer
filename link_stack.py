@@ -20,7 +20,7 @@ class LinkStack:
         if not len(self.__stack):
             return
 
-        yield self.__stack.pop()
+        return self.__stack.pop()
 
     def empty(self):
         """Return True if the stack is empty."""
