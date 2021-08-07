@@ -11,12 +11,20 @@ class LinkStack:
         """initializing link stack with a seed article for fetching."""
         self.__stack: List[str] = [seed_article]
 
-    def __iter__(self) -> Optional[str]:
+    def __iter__(self):
+        """Initializing looping process."""
+        return self
+
+    def __next__(self) -> Optional[str]:
         """Yields the next retrieved link while the stack is filled."""
         if not len(self.__stack):
             return
 
         yield self.__stack.pop()
+
+    def empty(self):
+        """Return True if the stack is empty."""
+        return not len(self)
 
     def __len__(self) -> int:
         """Return the number of links that still need to be fetched."""
