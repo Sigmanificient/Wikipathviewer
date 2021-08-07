@@ -7,6 +7,15 @@ class LinkStack:
         # initializing with 1 link for process to work.
         self.__stack = [seed_article]
 
+    def __iter__(self):
+        if not len(self.__stack):
+            return
+
+        yield self.__stack.pop()
+
+    def __len__(self):
+        return len(self.__stack)
+
     def extend(self, link_list):
         if not link_list:
             return
@@ -18,15 +27,6 @@ class LinkStack:
                 # removing /wiki/
                 self.__stack.append(href[6:])
 
-    def __iter__(self):
-        if not len(self.__stack):
-            return
-
-        yield self.__stack.pop()
-
-    def __len__(self):
-        return len(self.__stack)
-
 
 def is_valid(link):
     if link is None:
@@ -36,8 +36,8 @@ def is_valid(link):
         return False
 
     for optional_link in (
-        'http://', 'https://',
-        'en.wikipedia.org',
+            'http://', 'https://',
+            'en.wikipedia.org',
     ):
         if link.startswith(optional_link):
             link = link[len(optional_link):]
