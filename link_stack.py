@@ -1,4 +1,4 @@
-seed_article = '/wiki/Python_(programming_language)'
+seed_article = 'Python_(programming_language)'
 
 
 class LinkStack:
@@ -12,33 +12,37 @@ class LinkStack:
             return
 
         for link in link_list:
-            if is_valid(link):
-                self.__stack.append(link.href)
+            href = link.attrs.get('href')
 
-    def __next__(self):
+            if is_valid(href):
+                # removing /wiki/
+                self.__stack.append(href[6:])
+
+    def __iter__(self):
         if not len(self.__stack):
             return
 
-        return self.__stack.pop()
+        yield self.__stack.pop()
+
+    def __len__(self):
+        return len(self.__stack)
 
 
 def is_valid(link):
-    if link.href is None:
+    if link is None:
         return False
 
-    href = link.href
-
-    if link.href.startswith('#'):
+    if link.startswith('#'):
         return False
 
     for optional_link in (
         'http://', 'https://',
         'en.wikipedia.org',
     ):
-        if href.startswith(optional_link):
-            href = href[len(optional_link):]
+        if link.startswith(optional_link):
+            link = link[len(optional_link):]
 
-    return bool(href.startswith('/wiki/'))
+    return bool(link.startswith('/wiki/'))
 
 
 link_stack = LinkStack()

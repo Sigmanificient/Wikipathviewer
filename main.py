@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from link_stack import link_stack
 
-BASE_URL = 'https://en.wikipedia.org'
+BASE_URL = 'https://en.wikipedia.org/wiki/'
 
 
 def main():
