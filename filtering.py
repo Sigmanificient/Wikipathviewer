@@ -26,4 +26,7 @@ def is_valid(link: str) -> bool:
     if link.startswith('#'):
         return False
 
+    if link.endswith('Main_Page'):
+        return False
+
     return bool(link.startswith('/wiki/'))

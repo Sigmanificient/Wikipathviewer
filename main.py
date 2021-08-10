@@ -31,12 +31,15 @@ def main() -> None:
         links = filter_valid_links(soup.findAll('a'))
         link_stack.extend(links)
 
-        with open("links.txt", "a+") as f:
+        with open("out/links.txt", "a+") as f:
+            f.write(f'{link}\n')
+
+        with open("out/links-relations", "a+") as f:
             indexes = ' '.join(
                 map(str, (link_stack.index(link) for link in links))
             )
 
-            f.write(f'{link}\t{indexes}\n')
+            f.write(f'{indexes}\n')
 
         update_status(c, link)
 
