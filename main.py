@@ -10,16 +10,18 @@ std_screen = curses.initscr()
 
 def update_status(c, last_link):
     total = c + len(link_stack)
+    std_screen.clear()
 
     for y, line in enumerate(
         (
             f"last fetch: {last_link}",
             f"To fetch: {len(link_stack):,}",
-            f"Total {c:,} / {total:,} ({(c / total) * 100:.2f})",
+            f"Total {c:,} / {total:,} ({(c / total) * 100:.2f}%)",
         )
     ):
         std_screen.addstr(y, 0, line)
     std_screen.refresh()
+
 
 
 def main() -> None:
