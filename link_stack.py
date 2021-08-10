@@ -21,7 +21,7 @@ class LinkStack:
 
     def __len__(self) -> int:
         """Return the number of links that still need to be fetched."""
-        return len(self.__stack)
+        return len(self.__stack) - self.current
 
     def empty(self):
         """Return True if the stack is empty."""
