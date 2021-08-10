@@ -1,7 +1,5 @@
 from typing import List, Optional
 
-from bs4.element import ResultSet, Tag
-
 seed_article: str = 'Python_(programming_language)'
 
 
@@ -22,43 +20,22 @@ class LinkStack:
 
         return self.__stack.pop()
 
-    def empty(self):
-        """Return True if the stack is empty."""
-        return not len(self)
-
     def __len__(self) -> int:
         """Return the number of links that still need to be fetched."""
         return len(self.__stack)
 
-    def extend(self, link_list: ResultSet[Tag]) -> None:
+    def empty(self):
+        """Return True if the stack is empty."""
+        return not len(self)
+
+    def extend(self, link_list: List[str]) -> None:
         """Adds every valid wikipedia link to the stack."""
-        if not link_list:
-            return
-
         for link in link_list:
-            href: str = link.attrs.get('href')
+            if link not in self.__stack:
+                self.__stack.append(link)
 
-            if is_valid(href):
-                # removing /wiki/
-                self.__stack.append(href[6:])
-
-
-def is_valid(link: str) -> bool:
-    """Checks the link to be a wikipedia article."""
-    if link is None:
-        return False
-
-    if link.startswith('#'):
-        return False
-
-    for optional_link in (
-        'http://', 'https://',
-        'en.wikipedia.org',
-    ):
-        if link.startswith(optional_link):
-            link = link[len(optional_link):]
-
-    return bool(link.startswith('/wiki/'))
+    def index(self, item):
+        return self.__stack.index(item)
 
 
 link_stack: LinkStack = LinkStack()

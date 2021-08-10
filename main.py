@@ -2,17 +2,18 @@ import curses
 import requests
 from bs4 import BeautifulSoup
 from link_stack import link_stack
+from filtering import filter_valid_links
 
 BASE_URL: str = 'https://en.wikipedia.org/wiki/'
 std_screen = curses.initscr()
 
 
-def update_status(c, link):
+def update_status(c, last_link):
     total = c + len(link_stack)
 
     for y, line in enumerate(
         (
-            f"last fetch: {link}",
+            f"last fetch: {last_link}",
             f"To fetch: {len(link_stack):,}",
             f"Total {c:,} / {total:,} ({(c / total) * 100:.2f})",
         )
@@ -26,7 +27,17 @@ def main() -> None:
     for c, link in enumerate(link_stack):
         response = requests.get(f"{BASE_URL}{link}")
         soup = BeautifulSoup(response.content, "html.parser")
-        link_stack.extend(soup.findAll('a'))
+
+        links = filter_valid_links(soup.findAll('a'))
+        link_stack.extend(links)
+
+        with open("links.txt", "a+") as f:
+            indexes = ' '.join(
+                map(str, (link_stack.index(link) for link in links))
+            )
+
+            f.write(f'{link}\t{indexes}\n')
+
         update_status(c, link)
 
 
