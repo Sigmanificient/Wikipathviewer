@@ -1,32 +1,32 @@
+import re
 from typing import List
-from bs4.element import ResultSet, Tag
+
+WIKI_LINKS_PATTERN = re.compile(r'\/wiki\/([^":?#]+)')
 
 
-def filter_valid_links(links: ResultSet[Tag]) -> List[str]:
-    filtered_links: List[str] = []
-
-    for link in links:
-        href: str = link.attrs.get('href')
-
-        if is_valid(href):
-            # Removing /wiki/
-            filtered_links.append(href[6:])
-
-    return filtered_links
+def get_wiki_links(html_page: str) -> List[str]:
+    """
+    Return a list of links from the html page.
+    """
+    return re.findall(WIKI_LINKS_PATTERN, html_page)
 
 
-def is_valid(link: str) -> bool:
-    """Checks the link to be a wikipedia article."""
-    if link is None:
-        return False
+def main():
+    """
+    Main function.
+    """
+    assert get_wiki_links('') == []
 
-    if ':' in link:
-        return False
+    assert get_wiki_links(
+        '<html><body><a href="/wiki/Link">Link</a><a href="/wiki/Link2">Link2'
+        '</a></body></html>'
+    ) == ['Link', 'Link2']
 
-    if link.startswith('#'):
-        return False
+    assert get_wiki_links(
+        '<html><body><a href="/wiki/Link">Link</a><a href="Link2">Link2</a>'
+        '<a href="/wiki/Link3">Link3</a></body></html>'
+    ) == ['Link', 'Link3']
 
-    if link.endswith('Main_Page'):
-        return False
 
-    return bool(link.startswith('/wiki/'))
+if __name__ == '__main__':
+    main()
