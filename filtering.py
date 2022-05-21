@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-WIKI_LINKS_PATTERN = re.compile(r'\/wiki\/([^":?#]+)')
+WIKI_LINKS_PATTERN = re.compile(r'\/wiki\/([^":?#]+)"')
 
 
 def get_wiki_links(html_page: str) -> List[str]:
