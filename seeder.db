@@ -1,0 +1,16 @@
+create table Point
+(
+    id         integer     not null
+        constraint a_pk    primary key,
+    url       varchar(255) not null
+);
+
+create table LinkRelation
+(
+    id         integer     not null
+        constraint a_pk    primary key autoincrement,
+    link_from  integer    not null
+        constraint a_fk    references Point(id),
+    link_to    integer    not null
+        constraint a_fk    references Point(id)
+);
