@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Optional, Dict, Set
+from typing import List, Optional, Dict
 
 seed_article: str = 'Python_(programming_language)'
 
@@ -11,8 +11,9 @@ class LinkStack:
         self.__stack: Dict[str, int] = defaultdict(int)
         self.__stack[seed_article] = 1
         self.__counter = 2
+        self.__counter_left = 1
 
-        self.__remaining: Set[str] = {seed_article}
+        self.__remaining: Dict[int, str] = {self.__counter_left: seed_article}
         self.__left = 0  # hack to make the first fetching work
 
     def __iter__(self):
@@ -21,8 +22,9 @@ class LinkStack:
 
     def __next__(self) -> Optional[str]:
         """Yields the next retrieved link while the stack is filled."""
-        self.__left -= 1
-        return self.__remaining.pop()
+        item = self.__remaining.pop(self.__counter_left)
+        self.__counter_left += 1
+        return item
 
     def __len__(self) -> int:
         """Return the number of links that still need to be fetched."""
@@ -37,7 +39,7 @@ class LinkStack:
         for link in link_list:
             if self.__stack[link] == 0:
                 self.__stack[link] = self.__counter
-                self.__remaining.add(link)
+                self.__remaining[self.__counter] = link
 
                 self.__counter += 1
                 self.__left += 1
