@@ -12,7 +12,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         pyenv = pkgs.python311.withPackages (p: with p; [
           aiosqlite
-          requests
+          aiohttp
         ]);
       in
       {
