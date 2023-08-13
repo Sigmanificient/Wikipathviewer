@@ -2,8 +2,8 @@ import curses
 
 import requests
 
-from filtering import get_wiki_links
-from link_stack import link_stack
+from .filtering import get_wiki_links
+from .link_stack import link_stack
 from time import perf_counter
 
 BASE_URL: str = 'https://en.wikipedia.org/wiki/'
