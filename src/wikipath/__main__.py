@@ -1,55 +1,37 @@
-import curses
+from .fetch_pool import FetchPool
+from .utils import clean_up_names, parse_links
 
-import requests
-
-from .filtering import get_wiki_links
-from .link_stack import link_stack
-from time import perf_counter
-
-BASE_URL: str = 'https://en.wikipedia.org/wiki/'
-std_screen = curses.initscr()
-marker = perf_counter()
+SEED_ARTICLE: str = "Python_(programming_language)"
 
 
-def update_status(c, last_link):
-    total = c + len(link_stack)
-    std_screen.clear()
-
-    t = perf_counter() - marker
-
-    for y, line in enumerate(
-        (
-            f"last fetch: {last_link}",
-            f"To fetch: {len(link_stack):,}",
-            f"Total {c:,} / {total:,} ({(c / total) * 100:.2f}%)",
-            # Numbers of links fetched per second:
-            f"{c / t:.2f}/s",
-            f"{t:.2f}s",
-        )
-    ):
-        std_screen.addstr(y, 0, line)
-    std_screen.refresh()
+def show_progress(fetched, queued):
+    total = fetched + queued
+    percent = (fetched / (total)) * 100
+    print(
+        f"Progress: {fetched:,}/{total:,}"
+        f" - {percent:.2f}% - {queued:,} Remaining "
+    )
 
 
 def main() -> None:
-    """Main entry point for link fetching."""
-    for c, link in enumerate(link_stack):
-        response = requests.get(f"{BASE_URL}{link}")
+    pool = FetchPool(SEED_ARTICLE)
+    fetched = 0
 
-        links = get_wiki_links(response.text)
-        link_stack.extend(links)
+    while not pool.empty:
+        response = pool.fetch_next()
+        if not response.ok:
+            continue
 
-        with open("out/links.txt", "a+") as f:
-            f.write(f'{link}\n')
+        fetched += 1
+        links = parse_links(response.text)
+        if links is None:
+            continue
 
-        with open("out/links-relations", "a+") as f:
-            indexes = ' '.join(
-                map(str, (link_stack.index(link) for link in links))
-            )
+        article_names = clean_up_names(links)
+        pool.extend(article_names)
 
-            f.write(f'{indexes}\n')
-
-        update_status(c, link)
+        show_progress(fetched, pool.queued)
+        # save_progess(article_names)
 
 
 if __name__ == '__main__':

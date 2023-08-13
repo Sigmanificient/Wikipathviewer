@@ -13,6 +13,7 @@
         pyenv = pkgs.python311.withPackages (p: with p; [
           aiosqlite
           aiohttp
+          requests
         ]);
       in
       {
