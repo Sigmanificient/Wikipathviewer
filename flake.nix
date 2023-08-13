@@ -21,5 +21,19 @@
             black
           ] ++ [ pyenv ];
         };
+
+        packages = rec {
+          wikipath = let 
+            pypkgs = pkgs.python311Packages;
+          in pypkgs.buildPythonPackage {
+            pname = "wikipath";
+            version = "0.0.1";
+            src = ./.;
+
+            propagatedBuildInputs = with pypkgs; [ aiosqlite requests ];
+          };
+
+          default = wikipath;
+        };
       });
 }
