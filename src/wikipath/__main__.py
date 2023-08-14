@@ -39,18 +39,26 @@ async def process_request(resp, article_id, pool: FetchPool, db: Database):
     )
 
 
+async def _make_cycle(pool, db):
+    if pool.empty:
+        return False
+
+    id_, res_coro = pool.fetch_next()
+
+    async with res_coro as resp:
+        await process_request(resp, id_, pool, db)
+
+    return True
+
+
 async def _async_main():
     db = await Database.connect()
     pool = FetchPool(SEED_ARTICLE)
     fetched = 0
 
     while not pool.empty:
-        id_, res_coro = pool.fetch_next()
-
-        async with res_coro as resp:
-            await process_request(resp, id_, pool, db)
-            fetched += 1
-
+        tasks = [_make_cycle(pool, db) for _ in range(10)]
+        fetched += sum(await asyncio.gather(*tasks))
         show_progress(fetched, pool.queued)
 
     await db.close()
