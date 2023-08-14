@@ -18,6 +18,11 @@ class FetchPool:
         self._queue.put(idx)
 
         self._session = aiohttp.ClientSession()
+        self.last = None
+
+    @property
+    def map(self):
+        return self._idxm
 
     @property
     def queued(self) -> int:
@@ -32,6 +37,8 @@ class FetchPool:
         article_name = self._idxm.get_name(article_idx)
 
         assert article_name is not None
+
+        self.last = article_name
         print(f"-> [{article_name!r}]")
 
         return self._session.get(f"{BASE_URL}/{quote(article_name)}")

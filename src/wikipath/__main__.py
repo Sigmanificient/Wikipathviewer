@@ -1,6 +1,6 @@
 import asyncio
-import time
 
+from .db import Database
 from .fetch_pool import FetchPool
 from .utils import clean_up_names, parse_links
 
@@ -16,7 +16,7 @@ def show_progress(fetched, queued):
    )
 
 
-async def process_request(resp, pool):
+async def process_request(resp, pool: FetchPool, db: Database):
     if resp.status != 200:
         return
 
@@ -32,19 +32,26 @@ async def process_request(resp, pool):
     print("Filtered out:", ll - len(article_names))
     pool.extend(article_names)
 
+    assert pool.last is not None
+    await db.save_progress(
+        pool.map.get_id(pool.last), pool.last, 
+        [pool.map.get_id(art) for art in article_names]
+    )
+
 
 async def _async_main():
+    db = await Database.connect()
     pool = FetchPool(SEED_ARTICLE)
     fetched = 0
 
     while not pool.empty:
         async with pool.fetch_next() as resp:
-            await process_request(resp, pool)
+            await process_request(resp, pool, db)
             fetched += 1
 
         show_progress(fetched, pool.queued)
-        time.sleep(.2)
-        # save_progess(article_names)
+
+    await db.close()
 
 
 def main():
