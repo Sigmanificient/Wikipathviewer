@@ -13,7 +13,6 @@
         pyenv = pkgs.python311.withPackages (p: with p; [
           aiosqlite
           aiohttp
-          requests
         ]);
       in
       {
@@ -31,7 +30,7 @@
             version = "0.0.1";
             src = ./.;
 
-            propagatedBuildInputs = with pypkgs; [ aiosqlite requests ];
+            propagatedBuildInputs = with pypkgs; [ aiosqlite aiohttp ];
           };
 
           default = wikipath;
