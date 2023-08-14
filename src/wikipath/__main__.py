@@ -16,12 +16,13 @@ def show_progress(fetched, queued):
    )
 
 
-async def process_request(resp, pool: FetchPool, db: Database):
+async def process_request(resp, article_id, pool: FetchPool, db: Database):
+    article_name = pool.map.get_name(article_id)
+
     if resp.status != 200:
         return
 
     article_text = await resp.text()
-
     links = parse_links(article_text)
     if links is None:
         print("! No links found")
@@ -32,9 +33,8 @@ async def process_request(resp, pool: FetchPool, db: Database):
     print("Filtered out:", ll - len(article_names))
     pool.extend(article_names)
 
-    assert pool.last is not None
     await db.save_progress(
-        pool.map.get_id(pool.last), pool.last, 
+        article_id, article_name, 
         [pool.map.get_id(art) for art in article_names]
     )
 
@@ -45,8 +45,10 @@ async def _async_main():
     fetched = 0
 
     while not pool.empty:
-        async with pool.fetch_next() as resp:
-            await process_request(resp, pool, db)
+        id_, res_coro = pool.fetch_next()
+
+        async with res_coro as resp:
+            await process_request(resp, id_, pool, db)
             fetched += 1
 
         show_progress(fetched, pool.queued)
